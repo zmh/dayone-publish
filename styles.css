@@ -1207,7 +1207,7 @@ a {
 
     /* Calendar view - larger grid */
     .calendar-container {
-        max-width: 900px;
+        max-width: 1200px;
         margin: 0 auto;
         padding: var(--spacing-md);
     }
@@ -1259,10 +1259,11 @@ a {
 }
 
 /* ========================================
-   Dark Mode Support (optional, follows system)
+   Dark Mode Support
    ======================================== */
+/* System preference dark mode */
 @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme="light"]) {
         --bg-primary: #1C1C1E;
         --bg-secondary: #2C2C2E;
         --bg-tertiary: #3A3A3C;
@@ -1272,17 +1273,40 @@ a {
         --border-color: #38383A;
     }
 
-    .calendar-day.empty {
+    :root:not([data-theme="light"]) .calendar-day.empty {
         background: var(--bg-tertiary);
     }
 
-    .calendar-grid {
+    :root:not([data-theme="light"]) .calendar-grid {
         background: var(--bg-tertiary);
     }
 
-    .media-filters {
+    :root:not([data-theme="light"]) .media-filters {
         background: linear-gradient(180deg, rgba(60, 50, 50, 0.8) 0%, rgba(50, 60, 60, 0.6) 100%);
     }
+}
+
+/* Manual dark mode override */
+:root[data-theme="dark"] {
+    --bg-primary: #1C1C1E;
+    --bg-secondary: #2C2C2E;
+    --bg-tertiary: #3A3A3C;
+    --text-primary: #FFFFFF;
+    --text-secondary: #8E8E93;
+    --text-tertiary: #636366;
+    --border-color: #38383A;
+}
+
+:root[data-theme="dark"] .calendar-day.empty {
+    background: var(--bg-tertiary);
+}
+
+:root[data-theme="dark"] .calendar-grid {
+    background: var(--bg-tertiary);
+}
+
+:root[data-theme="dark"] .media-filters {
+    background: linear-gradient(180deg, rgba(60, 50, 50, 0.8) 0%, rgba(50, 60, 60, 0.6) 100%);
 }
 
 /* ========================================

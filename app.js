@@ -25,7 +25,8 @@ const state = {
     currentFilter: 'all',
     selectedEntryId: null,
     map: null,
-    markers: null
+    markers: null,
+    theme: null // null = system, 'light', or 'dark'
 };
 
 // ========================================
@@ -753,9 +754,69 @@ function escapeHtml(text) {
 }
 
 // ========================================
+// Dark Mode
+// ========================================
+function initializeDarkMode() {
+    // Check for saved theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        state.theme = savedTheme;
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+    // If no saved preference, theme stays null (follows system)
+
+    updateDarkModeIcon();
+}
+
+function toggleDarkMode() {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (state.theme === null) {
+        // Currently following system, switch to opposite of system
+        state.theme = prefersDark ? 'light' : 'dark';
+    } else if (state.theme === 'dark') {
+        state.theme = 'light';
+    } else {
+        // If light, go back to system preference
+        state.theme = null;
+    }
+
+    if (state.theme) {
+        document.documentElement.setAttribute('data-theme', state.theme);
+        localStorage.setItem('theme', state.theme);
+    } else {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.removeItem('theme');
+    }
+
+    updateDarkModeIcon();
+}
+
+function updateDarkModeIcon() {
+    const toggle = document.getElementById('darkModeToggle');
+    if (!toggle) return;
+
+    const icon = toggle.querySelector('i');
+    if (!icon) return;
+
+    // Determine effective theme
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = state.theme === 'dark' || (state.theme === null && prefersDark);
+
+    // Show sun icon if dark (clicking will go to light), moon if light (clicking will go to dark)
+    icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+}
+
+// ========================================
 // Event Listeners
 // ========================================
 function initializeEventListeners() {
+    // Dark mode toggle
+    document.getElementById('darkModeToggle')?.addEventListener('click', toggleDarkMode);
+
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateDarkModeIcon);
+
     // Tab navigation
     document.querySelectorAll('.tab-btn[data-view]').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -820,6 +881,7 @@ function initializeEventListeners() {
 // Initialize Application
 // ========================================
 document.addEventListener('DOMContentLoaded', () => {
+    initializeDarkMode();
     initializeEventListeners();
     loadJournalData();
 });

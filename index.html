@@ -21,11 +21,14 @@
         <header class="header">
             <div class="header-left">
                 <h1 class="journal-title">
-                    <i class="fa-solid fa-book-bookmark journal-icon"></i>
+                    <i class="fa-solid fa-book-open journal-icon"></i>
                     <span>My Journal</span>
                 </h1>
             </div>
             <div class="header-right">
+                <button class="icon-btn" id="darkModeToggle" aria-label="Toggle dark mode">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
                 <button class="icon-btn" aria-label="Search">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </button>
@@ -34,9 +37,6 @@
 
         <!-- Navigation Tabs -->
         <nav class="tabs">
-            <button class="tab-btn" data-view="timeline">
-                <i class="fa-solid fa-book-open tab-icon"></i>
-            </button>
             <button class="tab-btn active" data-view="timeline">Timeline</button>
             <button class="tab-btn" data-view="calendar">Calendar</button>
             <button class="tab-btn" data-view="media">Media</button>
