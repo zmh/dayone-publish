@@ -692,7 +692,8 @@ function openEntryModal(entryId) {
     const weather = getWeatherString(entry.weather);
     const tags = entry.tags || [];
 
-    let html = '';
+    // Scrollable content area
+    let html = '<div class="modal-scroll">';
 
     // Header photo (first photo only)
     if (photos.length > 0) {
@@ -720,9 +721,9 @@ function openEntryModal(entryId) {
 
     html += `
         </div>
-    `;
+    </div>`;
 
-    // Metadata bar at bottom
+    // Metadata bar pinned at bottom (outside scroll area)
     const hasMetadata = location || weather || tags.length > 0;
     if (hasMetadata) {
         html += `

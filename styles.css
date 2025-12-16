@@ -51,7 +51,7 @@
     --font-size-xxl: 28px;
 
     /* Layout */
-    --header-height: 56px;
+    --header-height: 48px;
     --tabs-height: 44px;
     --fab-size: 56px;
 
@@ -142,6 +142,21 @@ a {
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
+}
+
+/* Header tabs - hidden on mobile, shown on desktop */
+.header-tabs {
+    display: none;
+    align-items: center;
+    gap: var(--spacing-sm);
+    height: 100%;
+}
+
+.header-tabs .tab-btn {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 var(--spacing-md);
 }
 
 .menu-btn {
@@ -423,8 +438,22 @@ a {
     color: rgba(255, 255, 255, 0.7);
 }
 
-/* Desktop: show split view */
+/* Desktop: show split view and header tabs */
 @media (min-width: 768px) {
+    /* Show header tabs, hide secondary tabs */
+    .header-tabs {
+        display: flex;
+    }
+
+    .tabs {
+        display: none;
+    }
+
+    /* Adjust view height since tabs are hidden */
+    .view {
+        height: calc(100vh - var(--header-height));
+    }
+
     .timeline-list {
         flex: 0 0 400px;
         max-width: 400px;
@@ -884,6 +913,8 @@ a {
 
 .modal-content {
     position: relative;
+    display: flex;
+    flex-direction: column;
     width: 100%;
     max-width: 600px;
     max-height: 90vh;
@@ -910,8 +941,16 @@ a {
 }
 
 .modal-body {
-    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+.modal-scroll {
+    flex: 1;
     overflow-y: auto;
+    min-height: 0;
 }
 
 .modal-photo {
@@ -1315,11 +1354,6 @@ a {
    Desktop Styles (768px+)
    ======================================== */
 @media (min-width: 768px) {
-    :root {
-        --header-height: 64px;
-        --tabs-height: 48px;
-    }
-
     .header {
         padding: 0 var(--spacing-lg);
     }
