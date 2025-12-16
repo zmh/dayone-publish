@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>My Journal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Apple-style system font stack -->
+    <style>
+        :root {
+            --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="icon-btn menu-btn" aria-label="Menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h1 class="journal-title">
+                    <i class="fa-solid fa-book-bookmark journal-icon"></i>
+                    <span>My Journal</span>
+                </h1>
+            </div>
+            <div class="header-right">
+                <button class="icon-btn" aria-label="Notifications">
+                    <i class="fa-regular fa-bell"></i>
+                </button>
+                <button class="icon-btn" aria-label="Search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+                <button class="icon-btn" aria-label="More options">
+                    <i class="fa-solid fa-ellipsis"></i>
+                </button>
+                <div class="avatar">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="tabs">
+            <button class="tab-btn" data-view="list">
+                <i class="fa-solid fa-book-open tab-icon"></i>
+            </button>
+            <button class="tab-btn active" data-view="list">List</button>
+            <button class="tab-btn" data-view="calendar">Calendar</button>
+            <button class="tab-btn" data-view="media">Media</button>
+            <button class="tab-btn" data-view="map">Map</button>
+        </nav>
+
+        <!-- Media Filter (visible only in media view) -->
+        <div class="media-filters hidden" id="mediaFilters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="photo">Photo</button>
+            <button class="filter-btn" data-filter="video">Video</button>
+            <button class="filter-btn" data-filter="audio">Audio</button>
+            <button class="filter-btn" data-filter="pdf">PDF</button>
+        </div>
+
+        <!-- Map Controls (visible only in map view) -->
+        <div class="map-controls hidden" id="mapControls">
+            <button class="map-control-btn" id="infoBtn" aria-label="Info">
+                <i class="fa-solid fa-circle-info"></i>
+            </button>
+            <button class="map-control-btn" id="locationBtn" aria-label="My Location">
+                <i class="fa-solid fa-location-arrow"></i>
+            </button>
+            <button class="map-control-btn" id="fitBoundsBtn" aria-label="Fit all markers">
+                <i class="fa-solid fa-expand"></i>
+            </button>
+            <span class="entry-count" id="mapEntryCount">0</span>
+        </div>
+
+        <!-- Main Content Area -->
+        <main class="content">
+            <!-- List View -->
+            <div class="view list-view active" id="listView">
+                <div class="entries-list" id="entriesList">
+                    <!-- Entries will be populated here -->
+                </div>
+            </div>
+
+            <!-- Calendar View -->
+            <div class="view calendar-view" id="calendarView">
+                <div class="calendar-container" id="calendarContainer">
+                    <!-- Calendar will be populated here -->
+                </div>
+            </div>
+
+            <!-- Media View -->
+            <div class="view media-view" id="mediaView">
+                <div class="media-grid" id="mediaGrid">
+                    <!-- Media items will be populated here -->
+                </div>
+            </div>
+
+            <!-- Map View -->
+            <div class="view map-view" id="mapView">
+                <div id="map"></div>
+            </div>
+        </main>
+
+        <!-- Entry Detail Modal -->
+        <div class="modal" id="entryModal">
+            <div class="modal-backdrop"></div>
+            <div class="modal-content">
+                <button class="modal-close" aria-label="Close">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="modal-body" id="modalBody">
+                    <!-- Entry content will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Action Button -->
+        <button class="fab" aria-label="New Entry">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+    </div>
+
+    <!-- Leaflet CSS and JS for maps -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
+
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
+
+    <!-- Main application script -->
+    <script src="app.js"></script>
+</body>
+</html>
