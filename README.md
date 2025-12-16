@@ -1,6 +1,6 @@
 # dayone-publish
 
-Publish a Day One journal as a static site. Easily make a sharable, publicly-viewable travel blog, baby photo album, or anything else.
+Publish a Day One journal as a static site. Easily make a sharable, publicly-viewable travel blog, baby photo album, or anything else. Simple code, no web server needed. Works with [shared journals](https://dayoneapp.com/shared-journals/) too!
 
 ![Timeline View](screenshots/timeline.png)
 
