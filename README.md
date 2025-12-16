@@ -20,6 +20,7 @@ Edit `config.js` to set your site title and description.
 
 ## Screenshots
 
+![Calendar View](screenshots/calendar.png)
 ![Media View](screenshots/media.png)
 ![Map View](screenshots/map.png)
 
