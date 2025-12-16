@@ -2,8 +2,11 @@
 .DS_Store
 Thumbs.db
 
-# Personal journal data (use demo/ for sample data)
+# Personal journal data (exported with export-journal.py)
+# These are ignored to protect your private data
+# Demo data in demo/ folder IS tracked for new users
 data.js
+data/journal.json
 data/media/*
 !data/media/.gitkeep
 

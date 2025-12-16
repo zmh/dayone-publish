@@ -89,10 +89,20 @@ function getMonthYear(dateStr) {
     return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 }
 
+function cleanText(text) {
+    if (!text) return '';
+    // Remove Day One image/moment references and fix escaping
+    return text
+        .replace(/!\[\]\(dayone-moment:\/\/[^)]+\)/g, '')  // Remove dayone-moment images
+        .replace(/!\[\]\(dayone-moment:\/[^)]+\)/g, '')    // Alternative format
+        .replace(/\\([!#\[\]()\\])/g, '$1')                // Unescape markdown characters
+        .trim();
+}
+
 function getFirstLine(text) {
     if (!text) return '';
-    // Remove markdown formatting and get first meaningful line
-    const cleaned = text
+    // Clean and remove markdown formatting
+    const cleaned = cleanText(text)
         .replace(/^#+\s*/gm, '')  // Remove headers
         .replace(/\*\*/g, '')     // Remove bold
         .replace(/\*/g, '')       // Remove italic
@@ -100,12 +110,13 @@ function getFirstLine(text) {
         .trim();
 
     const lines = cleaned.split('\n').filter(line => line.trim());
-    return lines[0] || '';
+    return lines[0] || 'Untitled Entry';
 }
 
 function getPreviewText(text) {
     if (!text) return '';
-    const lines = text.split('\n').filter(line => line.trim());
+    const cleaned = cleanText(text);
+    const lines = cleaned.split('\n').filter(line => line.trim());
     // Skip the first line (title) and get the next line as preview
     return lines.slice(1).join(' ').substring(0, 150);
 }
@@ -153,30 +164,43 @@ function groupEntriesByMonth(entries) {
 // Data Loading
 // ========================================
 function loadJournalData() {
-    // Check if JOURNAL_DATA is available (loaded from data.js)
-    if (typeof JOURNAL_DATA !== 'undefined') {
-        state.entries = JOURNAL_DATA.entries || [];
-        state.journals = JOURNAL_DATA.journals || [];
+    // Check if JOURNAL_DATA is available (loaded from data.js or demo/data.js)
+    if (typeof JOURNAL_DATA === 'undefined') {
+        // No data loaded - try loading demo data
+        const script = document.createElement('script');
+        script.src = 'demo/data.js';
+        script.onload = () => loadJournalData(); // Retry after demo loads
+        script.onerror = () => {
+            console.error('Could not load journal data or demo data.');
+            showEmptyState('No journal data found. Run export-journal.py to export your Day One journal.');
+        };
+        document.head.appendChild(script);
+        return;
+    }
 
-        console.log(`Loaded ${state.entries.length} entries from ${state.journals.length} journals`);
+    // Use demo media path if using demo data
+    if (typeof JOURNAL_DATA_IS_DEMO !== 'undefined' && JOURNAL_DATA_IS_DEMO) {
+        CONFIG.mediaPath = './demo/media/';
+    }
 
-        // Initialize all views
-        renderTimelineView();
-        renderCalendarView();
-        renderMediaView();
-        initializeMap();
+    state.entries = JOURNAL_DATA.entries || [];
+    state.journals = JOURNAL_DATA.journals || [];
 
-        // Update stats and entry count
-        updateStats();
-        updateEntryCount();
+    console.log(`Loaded ${state.entries.length} entries from ${state.journals.length} journals`);
 
-        // Auto-select the most recent entry on desktop
-        if (state.entries.length > 0 && isDesktop()) {
-            selectTimelineEntry(state.entries[0].uuid);
-        }
-    } else {
-        console.error('JOURNAL_DATA not found. Make sure data.js is loaded.');
-        showEmptyState('Unable to load journal entries. Make sure you have exported your journal data and data.js is included.');
+    // Initialize all views
+    renderTimelineView();
+    renderCalendarView();
+    renderMediaView();
+    initializeMap();
+
+    // Update stats and entry count
+    updateStats();
+    updateEntryCount();
+
+    // Auto-select the most recent entry on desktop
+    if (state.entries.length > 0 && isDesktop()) {
+        selectTimelineEntry(state.entries[0].uuid);
     }
 }
 
@@ -353,7 +377,8 @@ function closeSheet() {
 function renderEntryDetailContent(entry) {
     const photos = entry.attachments?.filter(a => a.filename) || [];
     const title = getFirstLine(entry.text);
-    const text = entry.text?.split('\n').slice(1).join('\n') || '';
+    const cleanedText = cleanText(entry.text || '');
+    const text = cleanedText.split('\n').slice(1).join('\n');
     const location = getLocationString(entry.location);
     const weather = getWeatherString(entry.weather);
     const tags = entry.tags || [];
@@ -373,7 +398,7 @@ function renderEntryDetailContent(entry) {
                 ${formatDate(entry.creationDate)}${entry.creationDate ? ` at ${formatTime(entry.creationDate)}` : ''}
             </div>
             <h2 class="detail-title">${escapeHtml(title)}</h2>
-            <div class="detail-text">${marked.parse(text)}</div>
+            <div class="detail-text">${text ? marked.parse(text) : ''}</div>
     `;
 
     // Additional photos (after the text)
@@ -687,7 +712,8 @@ function openEntryModal(entryId) {
 
     const photos = entry.attachments?.filter(a => a.filename) || [];
     const title = getFirstLine(entry.text);
-    const text = entry.text?.split('\n').slice(1).join('\n') || '';
+    const cleanedText = cleanText(entry.text || '');
+    const text = cleanedText.split('\n').slice(1).join('\n');
     const location = getLocationString(entry.location);
     const weather = getWeatherString(entry.weather);
     const tags = entry.tags || [];
@@ -707,7 +733,7 @@ function openEntryModal(entryId) {
                 ${formatDate(entry.creationDate)}${entry.creationDate ? ` at ${formatTime(entry.creationDate)}` : ''}
             </div>
             <h2 class="modal-title">${escapeHtml(title)}</h2>
-            <div class="modal-text">${marked.parse(text)}</div>
+            <div class="modal-text">${text ? marked.parse(text) : ''}</div>
     `;
 
     // Additional photos (after the text)

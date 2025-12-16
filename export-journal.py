@@ -20,6 +20,7 @@ import shutil
 import sqlite3
 from datetime import datetime
 from pathlib import Path
+from typing import Optional, List, Dict
 
 
 # Default paths
@@ -41,27 +42,26 @@ def get_connection(db_path: str) -> sqlite3.Connection:
     return conn
 
 
-def get_journals(conn: sqlite3.Connection) -> list[dict]:
+def get_journals(conn: sqlite3.Connection) -> List[Dict]:
     """Get all journals from the database."""
     cursor = conn.execute("""
         SELECT
             Z_PK as id,
-            ZUUID as uuid,
+            ZSYNCJOURNALID as uuid,
             ZNAME as name
         FROM ZJOURNAL
-        WHERE ZISDELETED = 0 OR ZISDELETED IS NULL
         ORDER BY ZNAME
     """)
     return [dict(row) for row in cursor.fetchall()]
 
 
-def get_entries(conn: sqlite3.Connection, journal_id: int = None) -> list[dict]:
+def get_entries(conn: sqlite3.Connection, journal_id: int = None) -> List[Dict]:
     """Get all entries, optionally filtered by journal."""
     query = """
         SELECT
             e.Z_PK as id,
             e.ZUUID as uuid,
-            e.ZTEXT as text,
+            e.ZMARKDOWNTEXT as text,
             e.ZMARKDOWNTEXT as markdown_text,
             e.ZCREATIONDATE as creation_date,
             e.ZMODIFIEDDATE as modified_date,
@@ -69,10 +69,10 @@ def get_entries(conn: sqlite3.Connection, journal_id: int = None) -> list[dict]:
             e.ZLOCATION as location_id,
             e.ZWEATHER as weather_id,
             j.ZNAME as journal_name,
-            j.ZUUID as journal_uuid
+            j.ZSYNCJOURNALID as journal_uuid
         FROM ZENTRY e
         LEFT JOIN ZJOURNAL j ON e.ZJOURNAL = j.Z_PK
-        WHERE (e.ZISDELETED = 0 OR e.ZISDELETED IS NULL)
+        WHERE e.ZMARKDOWNTEXT IS NOT NULL
     """
 
     params = []
@@ -86,7 +86,7 @@ def get_entries(conn: sqlite3.Connection, journal_id: int = None) -> list[dict]:
     return [dict(row) for row in cursor.fetchall()]
 
 
-def get_location(conn: sqlite3.Connection, location_id: int) -> dict | None:
+def get_location(conn: sqlite3.Connection, location_id: int) -> Optional[Dict]:
     """Get location data for an entry."""
     if not location_id:
         return None
@@ -109,7 +109,7 @@ def get_location(conn: sqlite3.Connection, location_id: int) -> dict | None:
     return None
 
 
-def get_weather(conn: sqlite3.Connection, weather_id: int) -> dict | None:
+def get_weather(conn: sqlite3.Connection, weather_id: int) -> Optional[Dict]:
     """Get weather data for an entry."""
     if not weather_id:
         return None
@@ -132,40 +132,40 @@ def get_weather(conn: sqlite3.Connection, weather_id: int) -> dict | None:
     return None
 
 
-def get_tags(conn: sqlite3.Connection, entry_id: int) -> list[str]:
+def get_tags(conn: sqlite3.Connection, entry_id: int) -> List[str]:
     """Get tags for an entry."""
     cursor = conn.execute("""
         SELECT t.ZNAME as name
         FROM ZTAG t
-        JOIN Z_12TAGS et ON t.Z_PK = et.Z_14TAGS
-        WHERE et.Z_12ENTRIES = ?
+        JOIN Z_17TAGS et ON t.Z_PK = et.Z_63TAGS1
+        WHERE et.Z_17ENTRIES = ?
         ORDER BY t.ZNAME
     """, (entry_id,))
 
     return [row['name'] for row in cursor.fetchall()]
 
 
-def get_attachments(conn: sqlite3.Connection, entry_id: int) -> list[dict]:
+def get_attachments(conn: sqlite3.Connection, entry_id: int) -> List[Dict]:
     """Get photo/media attachments for an entry."""
     cursor = conn.execute("""
         SELECT
             a.Z_PK as id,
-            a.ZUUID as uuid,
+            a.ZIDENTIFIER as uuid,
             a.ZTYPE as type,
             a.ZMD5 as md5,
             a.ZFILENAME as filename,
             a.ZWIDTH as width,
             a.ZHEIGHT as height,
-            a.ZCREATIONDATE as creation_date
+            a.ZDATE as creation_date
         FROM ZATTACHMENT a
         WHERE a.ZENTRY = ?
-        ORDER BY a.ZCREATIONDATE
+        ORDER BY a.ZORDERINENTRY
     """, (entry_id,))
 
     return [dict(row) for row in cursor.fetchall()]
 
 
-def convert_apple_timestamp(timestamp: float) -> str | None:
+def convert_apple_timestamp(timestamp: float) -> Optional[str]:
     """Convert Apple Core Data timestamp to ISO format.
 
     Apple uses seconds since 2001-01-01 00:00:00 UTC.
@@ -183,7 +183,7 @@ def convert_apple_timestamp(timestamp: float) -> str | None:
     return dt.isoformat() + "Z"
 
 
-def find_photo_file(photos_path: str, attachment: dict) -> str | None:
+def find_photo_file(photos_path: str, attachment: dict) -> Optional[str]:
     """Find the actual photo file for an attachment."""
     uuid = attachment.get('uuid')
     md5 = attachment.get('md5')
@@ -227,7 +227,7 @@ def find_photo_file(photos_path: str, attachment: dict) -> str | None:
     return None
 
 
-def copy_media(src_path: str, dest_dir: Path, uuid: str) -> str | None:
+def copy_media(src_path: str, dest_dir: Path, uuid: str) -> Optional[str]:
     """Copy a media file to the output directory."""
     if not src_path:
         return None
