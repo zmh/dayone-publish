@@ -1,107 +1,89 @@
-# Day One Theme - Static Journal Website
+# dayone-publish
 
-A beautiful static website that displays your Day One journal entries with the same look and feel as the Day One iOS/macOS app.
+Publish a Day One journal as a static site — perfect for travel journals, baby photos, a simple blog, or anything else you want to be publicly viewable.
 
-**Works completely offline - no server required!** Just open `index.html` directly in your browser.
+![Timeline View](screenshots/timeline.png)
 
 ## Features
 
-- **List View**: Timeline of entries with thumbnails, titles, and metadata
-- **Calendar View**: Visual calendar with photos on days you journaled
-- **Media View**: Masonry grid of all your journal photos
-- **Map View**: Interactive map showing where you wrote entries
-- **Dark Mode**: Automatically follows your system preference
-- **Mobile Optimized**: Responsive design that works great on all devices
-- **No Server Required**: Works by opening the HTML file directly
+- **Timeline View** — Browse entries chronologically with a split-view layout on desktop
+- **Calendar View** — See entries organized by date
+- **Media View** — Gallery of all photos and media from your journal
+- **Map View** — Visualize entries on an interactive map with clustering
+- **Dark Mode** — Automatic system detection with manual toggle
+- **Fully Static** — No server required, host anywhere (GitHub Pages, Netlify, etc.)
+- **Responsive** — Works great on desktop and mobile
+
+![Media View](screenshots/media.png)
+
+![Map View](screenshots/map.png)
 
 ## Quick Start
 
-### 1. Export Your Journal
+1. Clone this repository
+2. Export your Day One journal as JSON (File → Export → JSON)
+3. Place your exported `Journal.json` in the `data/` folder
+4. Copy your media files to `data/media/`
+5. Edit `config.js` to customize your site title and description
+6. Open `index.html` in a browser or deploy to your hosting provider
 
-Run the export script to extract your Day One entries:
+## Configuration
+
+Edit `config.js` to customize your site:
+
+```javascript
+const SITE_CONFIG = {
+    title: 'My Journal',
+    about: {
+        title: 'About this journal',
+        description: 'Your journal description here...'
+    },
+    // ... other settings
+};
+```
+
+## Exporting from Day One
+
+1. Open Day One on Mac
+2. Select the journal you want to export
+3. Go to **File → Export → JSON**
+4. Check "Include media" if you want photos
+5. Save and unzip the export
+6. Copy `Journal.json` to `data/journal.json`
+7. Copy the `photos/` folder contents to `data/media/`
+
+## Demo
+
+The `demo/` folder contains sample data you can use to preview the site. To use it:
 
 ```bash
-python export-journal.py
+cp demo/data.js .
+cp -r demo/media/* data/media/
 ```
 
-This will:
-- Read from your local Day One database
-- Generate `data.js` with your entries (inlined for offline use)
-- Export backup to `./data/journal.json`
-- Copy all media files to `./data/media/`
+## Folder Structure
 
-### 2. Preview
-
-Simply **double-click `index.html`** to open it in your browser - no server needed!
-
-Alternatively, use a local server:
-
-```bash
-# Using Python
-python -m http.server 8000
-
-# Using Node.js
-npx serve
+```
+dayone-publish/
+├── index.html          # Main HTML file
+├── app.js              # Application logic
+├── styles.css          # Styles
+├── config.js           # Site configuration
+├── data.js             # Journal data (generated from export)
+├── data/
+│   └── media/          # Photos and media files
+├── demo/               # Sample data for testing
+└── screenshots/        # README screenshots
 ```
 
-Then open http://localhost:8000 in your browser.
+## Hosting
 
-### 3. Deploy
+This is a fully static site. You can host it anywhere:
 
-Deploy the entire folder to any static hosting service:
-
-**GitHub Pages:**
-```bash
-# Push to your repository
-git add .
-git commit -m "Deploy journal"
-git push
-
-# Enable GitHub Pages in repository settings
-# Set source to main branch, root folder
-```
-
-**Netlify:**
-- Drag and drop the folder to [Netlify Drop](https://app.netlify.com/drop)
-- Or connect your GitHub repository
-
-**Vercel:**
-```bash
-npx vercel
-```
-
-**Cloudflare Pages:**
-- Connect your GitHub repository in Cloudflare dashboard
-- Build command: (leave empty)
-- Build output directory: `/`
-
-## Export Script Options
-
-```bash
-# Export all journals
-python export-journal.py
-
-# Export specific journal
-python export-journal.py --journal "My Journal"
-
-# Custom output directory
-python export-journal.py --output ./public/data
-
-# Custom database path (if moved)
-python export-journal.py --db /path/to/DayOne.sqlite
-```
-
-## Default Database Locations
-
-The Day One database is located at:
-```
-~/Library/Group Containers/5U8NS4GX82.dayoneapp2/Data/Documents/DayOne.sqlite
-```
-
-Photos are stored at:
-```
-~/Library/Group Containers/5U8NS4GX82.dayoneapp2/Data/Documents/DayOnePhotos/
-```
+- **GitHub Pages** — Push to a repo and enable Pages
+- **Netlify** — Drag and drop the folder
+- **Vercel** — Import the repo
+- **Any web server** — Just upload the files
 
 ## Privacy Note
 
@@ -111,75 +93,15 @@ This creates a **public** website with your journal entries. Consider:
 - Add password protection if your host supports it
 - Review entries before deploying
 
-## Customization
-
-### Colors
-
-Edit CSS variables in `styles.css`:
-
-```css
-:root {
-    --dayone-blue: #2A9FD8;
-    --bg-primary: #FFFFFF;
-    --text-primary: #1D1D1F;
-    /* ... */
-}
-```
-
-### Map Tiles
-
-Change the map style in `app.js`:
-
-```javascript
-const CONFIG = {
-    mapTileUrl: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    // Or use other providers like Mapbox, Stadia, etc.
-};
-```
-
-## File Structure
-
-```
-dayonetheme/
-├── index.html          # Main HTML file
-├── styles.css          # All styles
-├── app.js              # Application logic
-├── data.js             # Journal data (generated, inlined JS)
-├── export-journal.py   # Export script
-├── data/
-│   ├── journal.json    # Backup JSON export
-│   └── media/          # Copied photos/videos
-└── README.md
-```
-
-## How It Works
-
-The site uses **inlined JavaScript data** instead of fetching JSON. This means:
-- No CORS issues when opening the file directly
-- Works completely offline after initial load
-- No server required for local viewing
-- CDN libraries (Leaflet, Font Awesome, Marked) still need internet for map/icons/markdown
-
-## Browser Support
-
-- Chrome/Edge 88+
-- Firefox 78+
-- Safari 14+
-- iOS Safari 14+
-- Android Chrome 88+
-
-## Dependencies
-
-All dependencies are loaded via CDN:
-- [Leaflet](https://leafletjs.com/) - Interactive maps
-- [Leaflet.markercluster](https://github.com/Leaflet/Leaflet.markercluster) - Map marker clustering
-- [Marked](https://marked.js.org/) - Markdown parsing
-- [Font Awesome](https://fontawesome.com/) - Icons
-
 ## License
 
-MIT License - feel free to modify and use for your own journal.
+MIT License — see [LICENSE](LICENSE) for details.
 
 ## Credits
 
-Inspired by [Day One](https://dayoneapp.com/) - the award-winning journaling app.
+Built with:
+- [Leaflet](https://leafletjs.com/) for maps
+- [Marked](https://marked.js.org/) for Markdown parsing
+- [Font Awesome](https://fontawesome.com/) for icons
+
+Inspired by [Day One](https://dayoneapp.com/) — the award-winning journaling app.

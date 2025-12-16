@@ -1,0 +1,18 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Personal journal data (use demo/ for sample data)
+data.js
+data/media/*
+!data/media/.gitkeep
+
+# Editor files
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Node (if using any build tools)
+node_modules/
