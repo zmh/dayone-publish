@@ -109,10 +109,11 @@ a {
    App Container
    ======================================== */
 #app {
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     padding-top: var(--safe-area-top);
+    overflow: hidden;
 }
 
 /* ========================================
@@ -1348,22 +1349,22 @@ a {
         height: 80px;
     }
 
-    /* Calendar view - larger grid */
+    /* Calendar view - full width */
     .calendar-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: var(--spacing-md);
+        max-width: none;
+        margin: 0;
+        padding: 0;
     }
 
     .calendar-day-number {
         font-size: var(--font-size-md);
     }
 
-    /* Media view - 3 columns */
+    /* Media view - 3 columns, full width */
     .media-grid {
         grid-template-columns: repeat(3, 1fr);
-        max-width: 1200px;
-        margin: 0 auto;
+        max-width: none;
+        margin: 0;
         gap: 8px;
         padding: var(--spacing-md);
     }
