@@ -345,10 +345,92 @@ a {
 }
 
 /* ========================================
-   List View
+   Timeline View (Split-view on desktop)
    ======================================== */
-.list-view {
+.timeline-view {
     background: var(--bg-primary);
+}
+
+.timeline-split {
+    display: flex;
+    height: 100%;
+}
+
+.timeline-list {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    border-right: 1px solid var(--border-color);
+}
+
+.timeline-detail {
+    display: none;
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    background: var(--bg-primary);
+}
+
+.detail-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-tertiary);
+    text-align: center;
+    padding: var(--spacing-xl);
+}
+
+.detail-placeholder i {
+    font-size: 48px;
+    margin-bottom: var(--spacing-md);
+    opacity: 0.3;
+}
+
+.detail-placeholder p {
+    font-size: var(--font-size-md);
+}
+
+/* Entry item selected state */
+.entry-item.selected {
+    background-color: var(--dayone-blue);
+}
+
+.entry-item.selected .entry-day-name,
+.entry-item.selected .entry-day-number,
+.entry-item.selected .entry-title,
+.entry-item.selected .entry-preview,
+.entry-item.selected .entry-meta,
+.entry-item.selected .entry-location {
+    color: white;
+}
+
+.entry-item.selected .entry-tag {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.entry-item.selected .entry-location::before {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Desktop: show split view */
+@media (min-width: 768px) {
+    .timeline-list {
+        flex: 0 0 400px;
+        max-width: 400px;
+    }
+
+    .timeline-detail {
+        display: block;
+    }
+}
+
+@media (min-width: 1200px) {
+    .timeline-list {
+        flex: 0 0 450px;
+        max-width: 450px;
+    }
 }
 
 .month-header {
@@ -375,6 +457,10 @@ a {
 
 .entry-item:hover {
     background-color: var(--bg-secondary);
+}
+
+.entry-item.selected:hover {
+    background-color: var(--dayone-blue-dark);
 }
 
 .entry-date {
@@ -697,7 +783,7 @@ a {
 .modal {
     position: fixed;
     inset: 0;
-    z-index: 200;
+    z-index: 1000;
     display: none;
     align-items: center;
     justify-content: center;
@@ -829,6 +915,167 @@ a {
 }
 
 /* ========================================
+   iOS-style Sheet (mobile timeline)
+   ======================================== */
+.sheet {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: none;
+    pointer-events: none;
+}
+
+.sheet.open {
+    display: block;
+    pointer-events: auto;
+}
+
+.sheet-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sheet.open .sheet-backdrop {
+    opacity: 1;
+}
+
+.sheet-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 90vh;
+    background: var(--bg-primary);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    overflow: hidden;
+    padding-bottom: var(--safe-area-bottom);
+}
+
+.sheet.open .sheet-content {
+    transform: translateY(0);
+}
+
+.sheet-close {
+    position: absolute;
+    right: var(--spacing-md);
+    top: var(--spacing-md);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    font-size: 16px;
+    transition: background-color 0.2s;
+    z-index: 10;
+}
+
+.sheet-close:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.sheet-body {
+    max-height: calc(90vh - var(--safe-area-bottom));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Detail content (used in both sheet and desktop detail pane) */
+.detail-content {
+    padding: 0;
+}
+
+.detail-photo {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+}
+
+.detail-photos {
+    display: flex;
+    gap: 2px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+}
+
+.detail-photos img {
+    flex-shrink: 0;
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    scroll-snap-align: start;
+}
+
+.detail-entry-content {
+    padding: var(--spacing-lg);
+}
+
+.detail-date {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.detail-title {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    margin-bottom: var(--spacing-md);
+}
+
+.detail-text {
+    font-size: var(--font-size-md);
+    line-height: 1.7;
+    color: var(--text-primary);
+}
+
+.detail-text p {
+    margin-bottom: var(--spacing-md);
+}
+
+.detail-meta {
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+.detail-meta-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.detail-meta-item i {
+    color: var(--dayone-blue);
+}
+
+.detail-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+}
+
+.detail-tag {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    color: var(--dayone-blue);
+}
+
+/* ========================================
    Floating Action Button
    ======================================== */
 .fab {
@@ -938,19 +1185,24 @@ a {
         gap: var(--spacing-xl);
     }
 
-    /* List view - wider layout */
+    /* List view - wider layout (only when not in split view) */
     .entries-list {
         max-width: 800px;
         margin: 0 auto;
     }
 
-    .entry-item {
-        padding: var(--spacing-lg);
+    /* Keep timeline list compact in split view */
+    .timeline-list .entries-list {
+        max-width: none;
     }
 
-    .entry-thumbnail {
-        width: 100px;
-        height: 100px;
+    .timeline-list .entry-item {
+        padding: var(--spacing-md);
+    }
+
+    .timeline-list .entry-thumbnail {
+        width: 80px;
+        height: 80px;
     }
 
     /* Calendar view - larger grid */

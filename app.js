@@ -21,8 +21,9 @@ const CONFIG = {
 const state = {
     entries: [],
     journals: [],
-    currentView: 'list',
+    currentView: 'timeline',
     currentFilter: 'all',
+    selectedEntryId: null,
     map: null,
     markers: null
 };
@@ -33,12 +34,15 @@ const state = {
 const elements = {
     app: document.getElementById('app'),
     entriesList: document.getElementById('entriesList'),
+    timelineDetail: document.getElementById('timelineDetail'),
     calendarContainer: document.getElementById('calendarContainer'),
     mediaGrid: document.getElementById('mediaGrid'),
     mapView: document.getElementById('mapView'),
     map: document.getElementById('map'),
     modal: document.getElementById('entryModal'),
     modalBody: document.getElementById('modalBody'),
+    sheet: document.getElementById('entrySheet'),
+    sheetBody: document.getElementById('sheetBody'),
     mediaFilters: document.getElementById('mediaFilters'),
     mapControls: document.getElementById('mapControls'),
     mapEntryCount: document.getElementById('mapEntryCount')
@@ -147,21 +151,16 @@ function groupEntriesByMonth(entries) {
 // ========================================
 // Data Loading
 // ========================================
-async function loadJournalData() {
-    try {
-        const response = await fetch(CONFIG.dataPath);
-        if (!response.ok) {
-            throw new Error('Failed to load journal data');
-        }
-
-        const data = await response.json();
-        state.entries = data.entries || [];
-        state.journals = data.journals || [];
+function loadJournalData() {
+    // Check if JOURNAL_DATA is available (loaded from data.js)
+    if (typeof JOURNAL_DATA !== 'undefined') {
+        state.entries = JOURNAL_DATA.entries || [];
+        state.journals = JOURNAL_DATA.journals || [];
 
         console.log(`Loaded ${state.entries.length} entries from ${state.journals.length} journals`);
 
         // Initialize all views
-        renderListView();
+        renderTimelineView();
         renderCalendarView();
         renderMediaView();
         initializeMap();
@@ -169,9 +168,13 @@ async function loadJournalData() {
         // Update entry count
         updateEntryCount();
 
-    } catch (error) {
-        console.error('Error loading journal data:', error);
-        showEmptyState('Unable to load journal entries. Make sure you have exported your journal data.');
+        // Auto-select the most recent entry on desktop
+        if (state.entries.length > 0 && isDesktop()) {
+            selectTimelineEntry(state.entries[0].uuid);
+        }
+    } else {
+        console.error('JOURNAL_DATA not found. Make sure data.js is loaded.');
+        showEmptyState('Unable to load journal entries. Make sure you have exported your journal data and data.js is included.');
     }
 }
 
@@ -192,9 +195,16 @@ function updateEntryCount() {
 }
 
 // ========================================
-// List View
+// Utility: Check if desktop
 // ========================================
-function renderListView() {
+function isDesktop() {
+    return window.innerWidth >= 768;
+}
+
+// ========================================
+// Timeline View
+// ========================================
+function renderTimelineView() {
     const groups = groupEntriesByMonth(state.entries);
     let html = '';
 
@@ -238,10 +248,118 @@ function renderListView() {
 
     elements.entriesList.innerHTML = html || '<div class="empty-state"><i class="fa-solid fa-book-open"></i><p>No entries found</p></div>';
 
-    // Add click handlers
+    // Add click handlers for timeline entries
     elements.entriesList.querySelectorAll('.entry-item').forEach(item => {
-        item.addEventListener('click', () => openEntryModal(item.dataset.entryId));
+        item.addEventListener('click', () => {
+            const entryId = item.dataset.entryId;
+            if (isDesktop()) {
+                // Desktop: show in side panel
+                selectTimelineEntry(entryId);
+            } else {
+                // Mobile: show in iOS-style sheet
+                openEntrySheet(entryId);
+            }
+        });
     });
+}
+
+// Select an entry in the timeline (desktop)
+function selectTimelineEntry(entryId) {
+    state.selectedEntryId = entryId;
+
+    // Update selected state in list
+    elements.entriesList.querySelectorAll('.entry-item').forEach(item => {
+        item.classList.toggle('selected', item.dataset.entryId === entryId);
+    });
+
+    // Render detail in side panel
+    renderTimelineDetail(entryId);
+}
+
+// Render entry detail in the side panel (desktop)
+function renderTimelineDetail(entryId) {
+    const entry = state.entries.find(e => e.uuid === entryId);
+    if (!entry) return;
+
+    const html = renderEntryDetailContent(entry);
+    elements.timelineDetail.innerHTML = html;
+}
+
+// Open entry in iOS-style sheet (mobile)
+function openEntrySheet(entryId) {
+    const entry = state.entries.find(e => e.uuid === entryId);
+    if (!entry) return;
+
+    const html = renderEntryDetailContent(entry);
+    elements.sheetBody.innerHTML = html;
+    elements.sheet.classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+// Close the sheet
+function closeSheet() {
+    elements.sheet.classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+// Render entry detail content (shared between desktop panel and mobile sheet)
+function renderEntryDetailContent(entry) {
+    const photos = entry.attachments?.filter(a => a.filename) || [];
+    const title = getFirstLine(entry.text);
+    const text = entry.text?.split('\n').slice(1).join('\n') || '';
+    const location = getLocationString(entry.location);
+    const weather = getWeatherString(entry.weather);
+    const tags = entry.tags || [];
+
+    let html = '<div class="detail-content">';
+
+    // Photos
+    if (photos.length > 0) {
+        if (photos.length === 1) {
+            html += `<img class="detail-photo" src="${getMediaUrl(photos[0].filename)}" alt="">`;
+        } else {
+            html += '<div class="detail-photos">';
+            photos.forEach(photo => {
+                html += `<img class="detail-photo" src="${getMediaUrl(photo.filename)}" alt="">`;
+            });
+            html += '</div>';
+        }
+    }
+
+    // Content
+    html += `
+        <div class="detail-entry-content">
+            <div class="detail-date">
+                ${formatDate(entry.creationDate)}${entry.creationDate ? ` at ${formatTime(entry.creationDate)}` : ''}
+            </div>
+            <h2 class="detail-title">${escapeHtml(title)}</h2>
+            <div class="detail-text">${marked.parse(text)}</div>
+
+            <div class="detail-meta">
+                ${location ? `
+                    <div class="detail-meta-item">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>${escapeHtml(location)}</span>
+                    </div>
+                ` : ''}
+                ${weather ? `
+                    <div class="detail-meta-item">
+                        <i class="fa-solid fa-cloud-sun"></i>
+                        <span>${escapeHtml(weather)}</span>
+                    </div>
+                ` : ''}
+            </div>
+
+            ${tags.length > 0 ? `
+                <div class="detail-tags">
+                    ${tags.map(tag => `<span class="detail-tag">${escapeHtml(tag)}</span>`).join('')}
+                </div>
+            ` : ''}
+        </div>
+    `;
+
+    html += '</div>';
+    return html;
 }
 
 // ========================================
@@ -271,11 +389,22 @@ function renderCalendarView() {
 
     // Generate months from newest to oldest
     let html = '';
-    let currentDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+    let currentYear = startDate.getFullYear();
+    let currentMonth = startDate.getMonth();
+    const endYear = endDate.getFullYear();
+    const endMonth = endDate.getMonth();
 
-    while (currentDate >= endDate) {
+    // Loop through months from newest to oldest
+    while (currentYear > endYear || (currentYear === endYear && currentMonth >= endMonth)) {
+        const currentDate = new Date(currentYear, currentMonth, 1);
         html += renderCalendarMonth(currentDate, entriesByDate);
-        currentDate.setMonth(currentDate.getMonth() - 1);
+
+        // Move to previous month
+        currentMonth--;
+        if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+        }
     }
 
     elements.calendarContainer.innerHTML = html;
@@ -462,8 +591,20 @@ function initializeMap() {
         `;
 
         marker.bindPopup(popupContent);
-        marker.on('click', () => {
-            // Could open modal instead: openEntryModal(entry.uuid);
+        marker.on('popupopen', () => {
+            // Add click handler to popup to open full entry view
+            const popupEl = marker.getPopup().getElement();
+            if (popupEl) {
+                popupEl.querySelector('.popup-content').style.cursor = 'pointer';
+                popupEl.querySelector('.popup-content').addEventListener('click', () => {
+                    marker.closePopup();
+                    if (isDesktop()) {
+                        openEntryModal(entry.uuid);
+                    } else {
+                        openEntrySheet(entry.uuid);
+                    }
+                });
+            }
         });
 
         state.markers.addLayer(marker);
@@ -584,11 +725,20 @@ function switchView(viewName) {
     elements.mediaFilters.classList.toggle('hidden', viewName !== 'media');
     elements.mapControls.classList.toggle('hidden', viewName !== 'map');
 
-    // Refresh map size when switching to map view
+    // Refresh map size and fit bounds when switching to map view
     if (viewName === 'map' && state.map) {
         setTimeout(() => {
             state.map.invalidateSize();
+            // Fit bounds to show all markers
+            if (state.markers && state.markers.getLayers().length > 0) {
+                state.map.fitBounds(state.markers.getBounds(), { padding: [50, 50] });
+            }
         }, 100);
+    }
+
+    // On desktop timeline, ensure an entry is selected
+    if (viewName === 'timeline' && isDesktop() && !state.selectedEntryId && state.entries.length > 0) {
+        selectTimelineEntry(state.entries[0].uuid);
     }
 }
 
@@ -624,10 +774,39 @@ function initializeEventListeners() {
     elements.modal.querySelector('.modal-close').addEventListener('click', closeModal);
     elements.modal.querySelector('.modal-backdrop').addEventListener('click', closeModal);
 
-    // Escape key to close modal
+    // Sheet close (mobile)
+    elements.sheet.querySelector('.sheet-backdrop').addEventListener('click', closeSheet);
+    elements.sheet.querySelector('.sheet-close').addEventListener('click', closeSheet);
+
+    // Escape key to close modal or sheet
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && elements.modal.classList.contains('open')) {
-            closeModal();
+        if (e.key === 'Escape') {
+            if (elements.modal.classList.contains('open')) {
+                closeModal();
+            }
+            if (elements.sheet.classList.contains('open')) {
+                closeSheet();
+            }
+        }
+    });
+
+    // Handle window resize - reselect entry if switching between mobile/desktop
+    let wasDesktop = isDesktop();
+    window.addEventListener('resize', () => {
+        const nowDesktop = isDesktop();
+        if (wasDesktop !== nowDesktop) {
+            wasDesktop = nowDesktop;
+            // Close sheet if switching to desktop
+            if (nowDesktop && elements.sheet.classList.contains('open')) {
+                closeSheet();
+                if (state.selectedEntryId) {
+                    selectTimelineEntry(state.selectedEntryId);
+                }
+            }
+            // Auto-select first entry on desktop if none selected
+            if (nowDesktop && !state.selectedEntryId && state.entries.length > 0) {
+                selectTimelineEntry(state.entries[0].uuid);
+            }
         }
     });
 

@@ -329,18 +329,30 @@ def export_journal(
 
         exported_entries.append(exported_entry)
 
-    # Write JSON output
+    # Build the data object
+    data = {
+        'exportDate': datetime.utcnow().isoformat() + "Z",
+        'journals': journals,
+        'entries': exported_entries
+    }
+
+    # Write JSON output (for reference/backup)
     output_file = output_path / "journal.json"
     with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump({
-            'exportDate': datetime.utcnow().isoformat() + "Z",
-            'journals': journals,
-            'entries': exported_entries
-        }, f, indent=2, ensure_ascii=False)
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
+    # Write JavaScript data file (for static site - no server needed)
+    js_data_file = output_path.parent / "data.js"
+    with open(js_data_file, 'w', encoding='utf-8') as f:
+        f.write("// Auto-generated journal data - do not edit manually\n")
+        f.write("const JOURNAL_DATA = ")
+        json.dump(data, f, indent=2, ensure_ascii=False)
+        f.write(";\n")
 
     print(f"\nExport complete!")
     print(f"  Entries: {len(exported_entries)}")
-    print(f"  Output: {output_file}")
+    print(f"  JSON: {output_file}")
+    print(f"  JS Data: {js_data_file}")
     print(f"  Media: {media_path}")
 
     conn.close()

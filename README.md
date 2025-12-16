@@ -2,6 +2,8 @@
 
 A beautiful static website that displays your Day One journal entries with the same look and feel as the Day One iOS/macOS app.
 
+**Works completely offline - no server required!** Just open `index.html` directly in your browser.
+
 ## Features
 
 - **List View**: Timeline of entries with thumbnails, titles, and metadata
@@ -10,6 +12,7 @@ A beautiful static website that displays your Day One journal entries with the s
 - **Map View**: Interactive map showing where you wrote entries
 - **Dark Mode**: Automatically follows your system preference
 - **Mobile Optimized**: Responsive design that works great on all devices
+- **No Server Required**: Works by opening the HTML file directly
 
 ## Quick Start
 
@@ -23,12 +26,15 @@ python export-journal.py
 
 This will:
 - Read from your local Day One database
-- Export all entries to `./data/journal.json`
+- Generate `data.js` with your entries (inlined for offline use)
+- Export backup to `./data/journal.json`
 - Copy all media files to `./data/media/`
 
-### 2. Preview Locally
+### 2. Preview
 
-Use any static file server to preview the site:
+Simply **double-click `index.html`** to open it in your browser - no server needed!
+
+Alternatively, use a local server:
 
 ```bash
 # Using Python
@@ -36,9 +42,6 @@ python -m http.server 8000
 
 # Using Node.js
 npx serve
-
-# Using PHP
-php -S localhost:8000
 ```
 
 Then open http://localhost:8000 in your browser.
@@ -141,12 +144,21 @@ dayonetheme/
 ├── index.html          # Main HTML file
 ├── styles.css          # All styles
 ├── app.js              # Application logic
+├── data.js             # Journal data (generated, inlined JS)
 ├── export-journal.py   # Export script
 ├── data/
-│   ├── journal.json    # Exported entries
+│   ├── journal.json    # Backup JSON export
 │   └── media/          # Copied photos/videos
 └── README.md
 ```
+
+## How It Works
+
+The site uses **inlined JavaScript data** instead of fetching JSON. This means:
+- No CORS issues when opening the file directly
+- Works completely offline after initial load
+- No server required for local viewing
+- CDN libraries (Leaflet, Font Awesome, Marked) still need internet for map/icons/markdown
 
 ## Browser Support
 
