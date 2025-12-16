@@ -108,18 +108,39 @@ const JOURNAL_DATA = {
     },
     {
       "uuid": "entry-004",
-      "text": "We hiked the scenic trails of the Waimea Valley.\n\nThe lush greenery and exotic plants along the path were breathtaking. We spotted several native bird species and learned about the cultural significance of this sacred Hawaiian valley.\n\nThe waterfall at the end of the trail was the perfect reward for our efforts. The kids couldn't resist a swim in the cool, refreshing pool beneath the falls.",
+      "text": "We hiked the scenic trails of the Waimea Valley.\n\nThe lush greenery and exotic plants along the path were breathtaking. We spotted several native bird species and learned about the cultural significance of this sacred Hawaiian valley. The trail guide explained how ancient Hawaiians used this valley for agriculture and religious ceremonies.\n\n## The Journey\n\nThe 1.5-mile walk to the waterfall took us through a botanical garden featuring over 5,000 species of tropical plants. The kids were fascinated by the massive banyan trees with their aerial roots creating natural curtains.\n\nWe stopped at several lookout points along the way, each offering increasingly beautiful views of the valley. The sound of birdsong accompanied us throughout the hike.\n\n## The Waterfall\n\nThe waterfall at the end of the trail was the perfect reward for our efforts. Standing 45 feet tall, Waimea Falls cascaded into a large pool that was perfect for swimming. The kids couldn't resist jumping in - the cool, refreshing water was a welcome relief from the humidity.\n\nWe spent nearly an hour at the falls, swimming and taking photos. The mist from the waterfall created tiny rainbows in the afternoon light.\n\n## Wildlife Encounters\n\nOn our way back, we spotted:\n- A Hawaiian moorhen near the pond\n- Several colorful tropical fish in the stream\n- A mongoose darting across the path\n- Beautiful peacocks displaying their feathers\n\nThis was definitely one of the highlights of our trip. The combination of natural beauty, cultural history, and that amazing waterfall made it an unforgettable experience.",
       "creationDate": "2024-08-24T10:00:00Z",
       "modifiedDate": "2024-08-24T10:00:00Z",
       "starred": false,
       "journalName": "My Journal",
       "journalUuid": "SAMPLE-JOURNAL-UUID",
-      "tags": ["Hiking", "Nature"],
+      "tags": ["Hiking", "Nature", "Waterfall", "Family"],
       "attachments": [
         {
-          "uuid": "photo-004",
+          "uuid": "photo-004a",
           "type": "photo",
           "filename": "waterfall1.jpg",
+          "width": 800,
+          "height": 600
+        },
+        {
+          "uuid": "photo-004b",
+          "type": "photo",
+          "filename": "trail1.jpg",
+          "width": 800,
+          "height": 600
+        },
+        {
+          "uuid": "photo-004c",
+          "type": "photo",
+          "filename": "plants1.jpg",
+          "width": 600,
+          "height": 800
+        },
+        {
+          "uuid": "photo-004d",
+          "type": "photo",
+          "filename": "swimming1.jpg",
           "width": 800,
           "height": 600
         }
@@ -268,18 +289,46 @@ const JOURNAL_DATA = {
     },
     {
       "uuid": "entry-009",
-      "text": "Snorkeling adventure at Hanauma Bay.\n\nThe underwater world was absolutely spectacular. We saw dozens of colorful fish species, including the beautiful Humuhumunukunukuapua'a (Hawaii's state fish).\n\nThe kids used underwater cameras to capture their discoveries. We must have spent three hours in the water, completely losing track of time in this aquatic paradise.",
+      "text": "Snorkeling adventure at Hanauma Bay.\n\nWe arrived early to beat the crowds at this famous marine preserve. The bay is actually a volcanic crater that flooded with seawater thousands of years ago, creating a perfect natural aquarium.\n\n## Getting Started\n\nBefore entering the water, everyone must watch a short educational video about protecting the reef and marine life. The kids were fascinated to learn about the delicate ecosystem and how important it is to not touch the coral.\n\nWe rented snorkel gear at the concession stand and made our way down to the beach. The water was crystal clear with visibility of at least 30 feet.\n\n## Underwater Paradise\n\nThe underwater world was absolutely spectacular. We saw dozens of colorful fish species, including:\n\n- **Humuhumunukunukuapua'a** - Hawaii's state fish with its distinctive geometric patterns\n- **Yellow tang** - bright yellow fish that moved in large schools\n- **Parrotfish** - munching on coral and creating that distinctive crunching sound\n- **Moorish idols** - elegant black and white striped fish\n- **Sea urchins** - nestled in rocky crevices\n\nThe kids used underwater cameras to capture their discoveries. Every few minutes they'd surface excitedly to share what they'd seen.\n\n## The Reef System\n\nWe explored three different areas of the bay, each with its own unique character. The inner reef was perfect for beginners with calm, shallow water. The outer reef had larger fish and more dramatic coral formations.\n\n> \"The sea, once it casts its spell, holds one in its net of wonder forever.\" - Jacques Cousteau\n\nWe must have spent three hours in the water, completely losing track of time in this aquatic paradise. By the time we emerged, our fingers were pruned and our hearts were full.\n\n## Tips for Future Visits\n\n1. Arrive before 9am to get parking\n2. Bring reef-safe sunscreen\n3. The left side of the bay has the best coral\n4. Bring your own snorkel gear if you have it\n5. Pack snacks - the food options are limited",
       "creationDate": "2024-08-15T11:00:00Z",
       "modifiedDate": "2024-08-15T11:00:00Z",
       "starred": true,
       "journalName": "My Journal",
       "journalUuid": "SAMPLE-JOURNAL-UUID",
-      "tags": ["Snorkeling", "Adventure"],
+      "tags": ["Snorkeling", "Adventure", "Marine Life", "Family"],
       "attachments": [
         {
-          "uuid": "photo-009",
+          "uuid": "photo-009a",
           "type": "photo",
           "filename": "snorkel1.jpg",
+          "width": 800,
+          "height": 600
+        },
+        {
+          "uuid": "photo-009b",
+          "type": "photo",
+          "filename": "fish1.jpg",
+          "width": 800,
+          "height": 600
+        },
+        {
+          "uuid": "photo-009c",
+          "type": "photo",
+          "filename": "bay1.jpg",
+          "width": 800,
+          "height": 600
+        },
+        {
+          "uuid": "photo-009d",
+          "type": "photo",
+          "filename": "underwater1.jpg",
+          "width": 600,
+          "height": 800
+        },
+        {
+          "uuid": "photo-009e",
+          "type": "photo",
+          "filename": "coral1.jpg",
           "width": 800,
           "height": 600
         }
@@ -300,18 +349,53 @@ const JOURNAL_DATA = {
     },
     {
       "uuid": "entry-010",
-      "text": "Our first day in Hawaii!\n\nAfter a long flight, we finally arrived in paradise. The warm tropical air hit us as soon as we stepped off the plane, and we knew this was going to be an amazing trip.\n\nWe received beautiful flower leis at the airport and headed straight to our hotel to drop off bags before exploring. The excitement is palpable - two weeks of adventure await!",
+      "text": "Our first day in Hawaii!\n\nAfter a long flight from the mainland, we finally arrived in paradise. The warm tropical air hit us as soon as we stepped off the plane, carrying the sweet scent of plumeria flowers. The kids pressed their faces against the terminal windows, pointing at the palm trees swaying in the breeze.\n\n## Airport Welcome\n\nWe received beautiful flower leis at the airport - purple orchids for the kids and fragrant plumeria for us. The traditional Hawaiian greeting of \"Aloha\" was everywhere, and we could already feel the laid-back island spirit.\n\nThe baggage claim was decorated with murals of Hawaiian culture and history. Even waiting for our luggage felt like the start of an adventure.\n\n## First Impressions\n\nThe drive from the airport to our hotel in Waikiki was stunning. Diamond Head crater loomed in the distance, and the ocean sparkled under the afternoon sun. We drove past:\n\n- Pearl Harbor memorials\n- Gorgeous beach parks\n- Neighborhoods with tropical gardens\n- The famous Ala Moana shopping center\n\n## Checking In\n\nOur hotel room had an ocean view that took our breath away. The kids immediately ran to the balcony to watch the surfers catching waves below. We could see the entire arc of Waikiki Beach stretching toward Diamond Head.\n\n## Evening Exploration\n\nAfter a quick rest, we couldn't resist exploring. We walked along Kalakaua Avenue, the main strip of Waikiki, taking in the mix of luxury shops, street performers, and beach vibes. The kids got their first taste of Hawaiian shave ice - a rainbow of tropical flavors piled high.\n\nWe ended the evening with dinner at a beachside restaurant, watching the sunset paint the sky in shades of orange and purple. A local musician played ukulele covers of popular songs while we ate fresh poke and grilled mahi-mahi.\n\n> The excitement is palpable - two weeks of adventure await!\n\nAs we walked back to the hotel under a canopy of stars, I knew this trip was going to be something special. The kids were already making a list of everything they wanted to do: surfing lessons, snorkeling, hiking, and of course, more shave ice.",
       "creationDate": "2024-08-14T16:00:00Z",
       "modifiedDate": "2024-08-14T16:00:00Z",
       "starred": true,
       "journalName": "My Journal",
       "journalUuid": "SAMPLE-JOURNAL-UUID",
-      "tags": ["Travel", "Hawaii"],
+      "tags": ["Travel", "Hawaii", "Arrival", "Family"],
       "attachments": [
         {
-          "uuid": "photo-010",
+          "uuid": "photo-010a",
           "type": "photo",
           "filename": "airport1.jpg",
+          "width": 800,
+          "height": 600
+        },
+        {
+          "uuid": "photo-010b",
+          "type": "photo",
+          "filename": "lei1.jpg",
+          "width": 600,
+          "height": 800
+        },
+        {
+          "uuid": "photo-010c",
+          "type": "photo",
+          "filename": "hotelview1.jpg",
+          "width": 800,
+          "height": 600
+        },
+        {
+          "uuid": "photo-010d",
+          "type": "photo",
+          "filename": "waikiki1.jpg",
+          "width": 800,
+          "height": 600
+        },
+        {
+          "uuid": "photo-010e",
+          "type": "photo",
+          "filename": "shaveice1.jpg",
+          "width": 600,
+          "height": 800
+        },
+        {
+          "uuid": "photo-010f",
+          "type": "photo",
+          "filename": "dinner1.jpg",
           "width": 800,
           "height": 600
         }

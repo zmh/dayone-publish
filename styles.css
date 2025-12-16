@@ -366,9 +366,15 @@ a {
 .timeline-detail {
     display: none;
     flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg-primary);
+}
+
+.timeline-detail-scroll {
+    flex: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    background: var(--bg-primary);
 }
 
 .detail-placeholder {
@@ -402,7 +408,8 @@ a {
 .entry-item.selected .entry-title,
 .entry-item.selected .entry-preview,
 .entry-item.selected .entry-meta,
-.entry-item.selected .entry-location {
+.entry-item.selected .entry-location,
+.entry-item.selected .entry-weather {
     color: white;
 }
 
@@ -410,7 +417,8 @@ a {
     color: rgba(255, 255, 255, 0.9);
 }
 
-.entry-item.selected .entry-location::before {
+.entry-item.selected .entry-location::before,
+.entry-item.selected .entry-weather::before {
     color: rgba(255, 255, 255, 0.7);
 }
 
@@ -422,7 +430,7 @@ a {
     }
 
     .timeline-detail {
-        display: block;
+        display: flex;
     }
 }
 
@@ -431,6 +439,62 @@ a {
         flex: 0 0 450px;
         max-width: 450px;
     }
+}
+
+/* ========================================
+   About Section
+   ======================================== */
+.about-section {
+    padding: var(--spacing-md);
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.about-title {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.about-text {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* ========================================
+   Stats Section (inside About)
+   ======================================== */
+.stats-section {
+    display: flex;
+    justify-content: space-between;
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--border-color);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.stat-number {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: var(--font-size-xs);
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .month-header {
@@ -513,15 +577,25 @@ a {
 .entry-meta {
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
     gap: var(--spacing-xs);
     font-size: var(--font-size-xs);
     color: var(--text-tertiary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .entry-tags {
     display: flex;
     gap: var(--spacing-xs);
+    min-width: 0;
+    overflow: hidden;
+}
+
+.entry-tags.has-separator::before {
+    content: '\2022';
+    margin: 0 var(--spacing-xs);
+    color: var(--text-tertiary);
 }
 
 .entry-tag {
@@ -533,9 +607,15 @@ a {
     display: flex;
     align-items: center;
     gap: 2px;
+    flex-shrink: 0;
 }
 
-.entry-location::before {
+.entry-weather {
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+}
+
+.entry-weather.has-separator::before {
     content: '\2022';
     margin: 0 var(--spacing-xs);
     color: var(--text-tertiary);
@@ -996,6 +1076,7 @@ a {
     width: 100%;
     max-height: 300px;
     object-fit: cover;
+    margin-bottom: var(--spacing-md);
 }
 
 .detail-photos {
@@ -1015,6 +1096,8 @@ a {
 
 .detail-entry-content {
     padding: var(--spacing-lg);
+    max-width: 650px;
+    margin: 0 auto;
 }
 
 .detail-date {
@@ -1073,6 +1156,66 @@ a {
     border-radius: var(--radius-sm);
     font-size: var(--font-size-xs);
     color: var(--dayone-blue);
+}
+
+/* Additional photos in detail view */
+.detail-additional-photos {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+}
+
+.detail-inline-photo {
+    width: 100%;
+    border-radius: var(--radius-md);
+    object-fit: cover;
+}
+
+/* Metadata bar pinned at bottom of detail pane */
+.detail-sticky-meta {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    background: var(--bg-primary);
+    border-top: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.sticky-meta-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    white-space: nowrap;
+}
+
+.sticky-meta-item i {
+    color: var(--dayone-blue);
+    font-size: 12px;
+}
+
+.sticky-meta-journal {
+    color: var(--dayone-blue);
+}
+
+/* Additional photos in modal */
+.modal-additional-photos {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+}
+
+.modal-inline-photo {
+    width: 100%;
+    border-radius: var(--radius-md);
+    object-fit: cover;
 }
 
 /* ========================================

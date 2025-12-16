@@ -4,15 +4,15 @@
  */
 
 // ========================================
-// Configuration
+// Configuration (from config.js)
 // ========================================
 const CONFIG = {
-    dataPath: './data/journal.json',
-    mediaPath: './data/media/',
-    mapTileUrl: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    mapAttribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    defaultCenter: [39.8283, -98.5795], // Center of USA
-    defaultZoom: 4
+    dataPath: SITE_CONFIG.dataPath,
+    mediaPath: SITE_CONFIG.mediaPath,
+    mapTileUrl: SITE_CONFIG.map.tileUrl,
+    mapAttribution: SITE_CONFIG.map.attribution,
+    defaultCenter: SITE_CONFIG.map.defaultCenter,
+    defaultZoom: SITE_CONFIG.map.defaultZoom
 };
 
 // ========================================
@@ -166,7 +166,8 @@ function loadJournalData() {
         renderMediaView();
         initializeMap();
 
-        // Update entry count
+        // Update stats and entry count
+        updateStats();
         updateEntryCount();
 
         // Auto-select the most recent entry on desktop
@@ -195,6 +196,48 @@ function updateEntryCount() {
     }
 }
 
+function updateStats() {
+    // Count entries
+    const totalEntries = state.entries.length;
+
+    // Count unique days with entries
+    const uniqueDays = new Set();
+    state.entries.forEach(entry => {
+        if (entry.creationDate) {
+            uniqueDays.add(entry.creationDate.split('T')[0]);
+        }
+    });
+
+    // Count total photos
+    let totalPhotos = 0;
+    state.entries.forEach(entry => {
+        if (entry.attachments) {
+            totalPhotos += entry.attachments.filter(a => a.type === 'photo' || a.filename).length;
+        }
+    });
+
+    // Count unique places
+    const uniquePlaces = new Set();
+    state.entries.forEach(entry => {
+        if (entry.location?.place_name) {
+            uniquePlaces.add(entry.location.place_name);
+        } else if (entry.location?.locality) {
+            uniquePlaces.add(entry.location.locality);
+        }
+    });
+
+    // Update DOM
+    const statEntries = document.getElementById('statEntries');
+    const statDays = document.getElementById('statDays');
+    const statPhotos = document.getElementById('statPhotos');
+    const statPlaces = document.getElementById('statPlaces');
+
+    if (statEntries) statEntries.textContent = totalEntries;
+    if (statDays) statDays.textContent = uniqueDays.size;
+    if (statPhotos) statPhotos.textContent = totalPhotos;
+    if (statPlaces) statPlaces.textContent = uniquePlaces.size;
+}
+
 // ========================================
 // Utility: Check if desktop
 // ========================================
@@ -217,7 +260,9 @@ function renderTimelineView() {
             const title = getFirstLine(entry.text);
             const preview = getPreviewText(entry.text);
             const location = getLocationString(entry.location);
+            const weather = getWeatherString(entry.weather);
             const tags = entry.tags || [];
+            const hasLocationOrWeather = location || weather;
 
             html += `
                 <div class="entry-item" data-entry-id="${entry.uuid}">
@@ -229,12 +274,13 @@ function renderTimelineView() {
                         <div class="entry-title">${escapeHtml(title)}</div>
                         ${preview ? `<div class="entry-preview">${escapeHtml(preview)}</div>` : ''}
                         <div class="entry-meta">
+                            ${location ? `<span class="entry-location">${escapeHtml(location)}</span>` : ''}
+                            ${weather ? `<span class="entry-weather${location ? ' has-separator' : ''}">${escapeHtml(weather)}</span>` : ''}
                             ${tags.length > 0 ? `
-                                <div class="entry-tags">
+                                <div class="entry-tags${hasLocationOrWeather ? ' has-separator' : ''}">
                                     ${tags.map(tag => `<span class="entry-tag">${escapeHtml(tag)}</span>`).join(', ')}
                                 </div>
                             ` : ''}
-                            ${location ? `<span class="entry-location">${escapeHtml(location)}</span>` : ''}
                         </div>
                     </div>
                     ${thumbnail ? `
@@ -312,19 +358,12 @@ function renderEntryDetailContent(entry) {
     const weather = getWeatherString(entry.weather);
     const tags = entry.tags || [];
 
-    let html = '<div class="detail-content">';
+    // Scrollable content area
+    let html = '<div class="timeline-detail-scroll"><div class="detail-content">';
 
-    // Photos
+    // Header photo (first photo only)
     if (photos.length > 0) {
-        if (photos.length === 1) {
-            html += `<img class="detail-photo" src="${getMediaUrl(photos[0].filename)}" alt="">`;
-        } else {
-            html += '<div class="detail-photos">';
-            photos.forEach(photo => {
-                html += `<img class="detail-photo" src="${getMediaUrl(photo.filename)}" alt="">`;
-            });
-            html += '</div>';
-        }
+        html += `<img class="detail-photo" src="${getMediaUrl(photos[0].filename)}" alt="">`;
     }
 
     // Content
@@ -335,31 +374,35 @@ function renderEntryDetailContent(entry) {
             </div>
             <h2 class="detail-title">${escapeHtml(title)}</h2>
             <div class="detail-text">${marked.parse(text)}</div>
+    `;
 
-            <div class="detail-meta">
-                ${location ? `
-                    <div class="detail-meta-item">
-                        <i class="fa-solid fa-location-dot"></i>
-                        <span>${escapeHtml(location)}</span>
-                    </div>
-                ` : ''}
-                ${weather ? `
-                    <div class="detail-meta-item">
-                        <i class="fa-solid fa-cloud-sun"></i>
-                        <span>${escapeHtml(weather)}</span>
-                    </div>
-                ` : ''}
-            </div>
+    // Additional photos (after the text)
+    if (photos.length > 1) {
+        html += '<div class="detail-additional-photos">';
+        photos.slice(1).forEach(photo => {
+            html += `<img class="detail-inline-photo" src="${getMediaUrl(photo.filename)}" alt="">`;
+        });
+        html += '</div>';
+    }
 
-            ${tags.length > 0 ? `
-                <div class="detail-tags">
-                    ${tags.map(tag => `<span class="detail-tag">${escapeHtml(tag)}</span>`).join('')}
-                </div>
-            ` : ''}
+    html += `
         </div>
     `;
 
-    html += '</div>';
+    html += '</div></div>';
+
+    // Metadata bar pinned at bottom (outside scroll area)
+    const hasMetadata = location || weather || tags.length > 0;
+    if (hasMetadata) {
+        html += `
+            <div class="detail-sticky-meta">
+                ${location ? `<span class="sticky-meta-item"><i class="fa-solid fa-location-dot"></i> ${escapeHtml(location)}</span>` : ''}
+                ${weather ? `<span class="sticky-meta-item"><i class="fa-solid fa-cloud-sun"></i> ${escapeHtml(weather)}</span>` : ''}
+                ${tags.length > 0 ? `<span class="sticky-meta-item"><i class="fa-solid fa-tag"></i> ${tags.map(tag => escapeHtml(tag)).join(', ')}</span>` : ''}
+            </div>
+        `;
+    }
+
     return html;
 }
 
@@ -651,17 +694,9 @@ function openEntryModal(entryId) {
 
     let html = '';
 
-    // Photos
+    // Header photo (first photo only)
     if (photos.length > 0) {
-        if (photos.length === 1) {
-            html += `<img class="modal-photo" src="${getMediaUrl(photos[0].filename)}" alt="">`;
-        } else {
-            html += '<div class="modal-photos">';
-            photos.forEach(photo => {
-                html += `<img class="modal-photo" src="${getMediaUrl(photo.filename)}" alt="">`;
-            });
-            html += '</div>';
-        }
+        html += `<img class="modal-photo" src="${getMediaUrl(photos[0].filename)}" alt="">`;
     }
 
     // Content
@@ -672,29 +707,32 @@ function openEntryModal(entryId) {
             </div>
             <h2 class="modal-title">${escapeHtml(title)}</h2>
             <div class="modal-text">${marked.parse(text)}</div>
+    `;
 
-            <div class="modal-meta">
-                ${location ? `
-                    <div class="modal-meta-item">
-                        <i class="fa-solid fa-location-dot"></i>
-                        <span>${escapeHtml(location)}</span>
-                    </div>
-                ` : ''}
-                ${weather ? `
-                    <div class="modal-meta-item">
-                        <i class="fa-solid fa-cloud-sun"></i>
-                        <span>${escapeHtml(weather)}</span>
-                    </div>
-                ` : ''}
-            </div>
+    // Additional photos (after the text)
+    if (photos.length > 1) {
+        html += '<div class="modal-additional-photos">';
+        photos.slice(1).forEach(photo => {
+            html += `<img class="modal-inline-photo" src="${getMediaUrl(photo.filename)}" alt="">`;
+        });
+        html += '</div>';
+    }
 
-            ${tags.length > 0 ? `
-                <div class="modal-tags">
-                    ${tags.map(tag => `<span class="modal-tag">${escapeHtml(tag)}</span>`).join('')}
-                </div>
-            ` : ''}
+    html += `
         </div>
     `;
+
+    // Metadata bar at bottom
+    const hasMetadata = location || weather || tags.length > 0;
+    if (hasMetadata) {
+        html += `
+            <div class="detail-sticky-meta">
+                ${location ? `<span class="sticky-meta-item"><i class="fa-solid fa-location-dot"></i> ${escapeHtml(location)}</span>` : ''}
+                ${weather ? `<span class="sticky-meta-item"><i class="fa-solid fa-cloud-sun"></i> ${escapeHtml(weather)}</span>` : ''}
+                ${tags.length > 0 ? `<span class="sticky-meta-item"><i class="fa-solid fa-tag"></i> ${tags.map(tag => escapeHtml(tag)).join(', ')}</span>` : ''}
+            </div>
+        `;
+    }
 
     elements.modalBody.innerHTML = html;
     elements.modal.classList.add('open');
@@ -878,9 +916,34 @@ function initializeEventListeners() {
 }
 
 // ========================================
+// Initialize Site Config
+// ========================================
+function initializeSiteConfig() {
+    // Set page title
+    document.title = SITE_CONFIG.title;
+
+    // Set header title
+    const headerTitle = document.querySelector('.journal-title span');
+    if (headerTitle) {
+        headerTitle.textContent = SITE_CONFIG.title;
+    }
+
+    // Set about section
+    const aboutTitle = document.querySelector('.about-title');
+    const aboutText = document.querySelector('.about-text');
+    if (aboutTitle) {
+        aboutTitle.textContent = SITE_CONFIG.about.title;
+    }
+    if (aboutText) {
+        aboutText.textContent = SITE_CONFIG.about.description;
+    }
+}
+
+// ========================================
 // Initialize Application
 // ========================================
 document.addEventListener('DOMContentLoaded', () => {
+    initializeSiteConfig();
     initializeDarkMode();
     initializeEventListeners();
     loadJournalData();
